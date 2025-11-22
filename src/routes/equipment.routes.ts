@@ -10,11 +10,13 @@ import {
 
 const router = Router();
 
-// Rutas protegidas con middleware
-router.post("/", protect(["admin"]), createEquipment);      // Crear equipo → solo admin
-router.get("/", protect(), getEquipments);                  // Listar equipos → cualquier usuario logueado
-router.get("/:id", protect(), getEquipmentById);            // Ver un equipo → cualquier usuario logueado
-router.put("/:id", protect(["admin"]), updateEquipment);    // Actualizar → solo admin
-router.delete("/:id", protect(["admin"]), deleteEquipment);// Borrar → solo admin
+// Solo admin puede crear, actualizar o borrar equipos
+router.post("/", protect(["admin"]), createEquipment);
+router.put("/:id", protect(["admin"]), updateEquipment);
+router.delete("/:id", protect(["admin"]), deleteEquipment);
+
+// Usuarios logueados pueden ver equipos
+router.get("/", protect(), getEquipments);
+router.get("/:id", protect(), getEquipmentById);
 
 export default router;

@@ -1,55 +1,55 @@
 import { Request, Response } from "express";
-import Equipment from "../models/Equipment";
+import * as EquipmentService from "../services/equipment.service";
+import { User } from "../models/User";
 
-export const createEquipment = async (req: Request, res: Response) => {
+type AuthRequest = Request & { user?: User };
+
+export const createEquipment = async (req: AuthRequest, res: Response) => {
   try {
-    const { name, type, serialNumber, status, location, assignedTo } = req.body;
-    const equipment = await Equipment.create({ name, type, serialNumber, status, location, assignedTo });
+    const user = req.user!;
+    const equipment = await EquipmentService.createEquipmentService(req.body, user);
     res.status(201).json(equipment);
-  } catch (err) {
-    res.status(500).json({ message: "Error creando el equipo", error: err });
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
   }
 };
 
-export const getEquipments = async (_req: Request, res: Response) => {
+export const getEquipments = async (req: AuthRequest, res: Response) => {
   try {
-    const equipments = await Equipment.findAll();
+    const user = req.user!;
+    const equipments = await EquipmentService.getEquipmentsService(user);
     res.json(equipments);
-  } catch (err) {
-    res.status(500).json({ message: "Error obteniendo equipos", error: err });
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
   }
 };
 
-export const getEquipmentById = async (req: Request, res: Response) => {
+export const getEquipmentById = async (req: AuthRequest, res: Response) => {
   try {
-    const equipment = await Equipment.findByPk(req.params.id);
-    if (!equipment) return res.status(404).json({ message: "Equipo no encontrado" });
+    const user = req.user!;
+    const equipment = await EquipmentService.getEquipmentByIdService(Number(req.params.id), user);
     res.json(equipment);
-  } catch (err) {
-    res.status(500).json({ message: "Error obteniendo el equipo", error: err });
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
   }
 };
 
-export const updateEquipment = async (req: Request, res: Response) => {
+export const updateEquipment = async (req: AuthRequest, res: Response) => {
   try {
-    const equipment = await Equipment.findByPk(req.params.id);
-    if (!equipment) return res.status(404).json({ message: "Equipo no encontrado" });
-
-    await equipment.update(req.body);
+    const user = req.user!;
+    const equipment = await EquipmentService.updateEquipmentService(Number(req.params.id), req.body, user);
     res.json(equipment);
-  } catch (err) {
-    res.status(500).json({ message: "Error actualizando el equipo", error: err });
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
   }
 };
 
-export const deleteEquipment = async (req: Request, res: Response) => {
+export const deleteEquipment = async (req: AuthRequest, res: Response) => {
   try {
-    const equipment = await Equipment.findByPk(req.params.id);
-    if (!equipment) return res.status(404).json({ message: "Equipo no encontrado" });
-
-    await equipment.destroy();
-    res.json({ message: "Equipo eliminado" });
-  } catch (err) {
-    res.status(500).json({ message: "Error eliminando el equipo", error: err });
+    const user = req.user!;
+    await EquipmentService.deleteEquipmentService(Number(req.params.id), user);
+    res.json({ message: "Equipment deleted successfully" });
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
   }
 };
