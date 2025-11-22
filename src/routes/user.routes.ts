@@ -1,10 +1,9 @@
 import { Router } from "express";
-import { loginUser } from "../controllers/auth.controller";
 import { protect } from "../middlewares/authMiddleware";
+import { getMyEquipments } from "../controllers/user.controller";
 
 const router = Router();
 
-// Login abierto para todos
-router.post("/login", loginUser);
+router.get("/equipments", protect(["user"]), getMyEquipments);
 
 export default router;
